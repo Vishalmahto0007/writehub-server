@@ -192,9 +192,16 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // true if deployed with HTTPS
+    sameSite: "Lax", // or "None" if you're using cross-origin cookies with HTTPS
+    path: "/", // important if the cookie was set with path
+  };
+
   res
-    .clearCookie("accessToken")
-    .clearCookie("refreshToken")
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
     .status(200)
     .json({ message: "Logged out successfully" });
 };
