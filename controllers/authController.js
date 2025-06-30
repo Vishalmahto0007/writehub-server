@@ -153,41 +153,84 @@ exports.resendVerificationCode = async (req, res, next) => {
   }
 };
 
+// exports.login = async (req, res, next) => {
+//   const { email, password } = req.body;
+//   try {
+//     const user = await User.findOne({ email });
+
+//     if (!user || !user.isVerified) {
+//       return res
+//         .status(401)
+//         .json({ message: "Invalid credentials or unverified user." });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Wrong password." });
+//     }
+
+//     const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+//       expiresIn: "1d",
+//     });
+
+//     const refreshToken = jwt.sign(
+//       { userId: user._id },
+//       process.env.JWT_REFRESH_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     res
+//       .cookie("accessToken", accessToken, {
+//         httpOnly: true,
+//         secure: process.env.NODE_ENV === "production",
+//         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//       })
+//       .cookie("refreshToken", refreshToken, {
+//         httpOnly: true,
+//         secure: process.env.NODE_ENV === "production",
+//         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//       })
+//       .status(200)
+//       .json({
+//         message: "Login successful!",
+//         user: { name: user.name, email: user.email },
+//       });
+//   } catch (err) {
+//     res.status(500).json({ message: "An error occurred during login." });
+//   }
+// };
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
-    if (!user || !user.isVerified)
-      return res.status(401).json({ message: "Invalid credentials." });
+
+    if (!user || !user.isVerified) {
+      return res
+        .status(401)
+        .json({ message: "Invalid credentials or unverified user." });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Wrong password." });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Wrong password." });
+    }
 
-    const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 
-    const refreshToken = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res
-      .cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
-      })
-      .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
-      })
-      .status(200)
-      .json({ message: "Login successful" });
+    res.status(200).json({
+      message: "Login successful!",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: "An error occurred during login." });
   }
 };
 

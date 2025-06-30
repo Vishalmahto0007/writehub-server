@@ -3,14 +3,11 @@ const User = require("../models/User");
 
 module.exports = async (req, res, next) => {
   try {
+    // Get token from Authorization header
     const authHeader = req.header("Authorization");
-    const bearerToken = authHeader?.startsWith("Bearer ")
+    const token = authHeader?.startsWith("Bearer ")
       ? authHeader.split(" ")[1]
       : null;
-
-    const cookieToken = req.cookies?.accessToken;
-
-    const token = bearerToken || cookieToken;
 
     if (!token) {
       return res
