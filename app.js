@@ -7,6 +7,10 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
 
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
+
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const blogRoutes = require("./routes/blogRoutes");
