@@ -7,10 +7,6 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
 
-app.get("/ping", (req, res) => {
-  res.status(200).send("pong");
-});
-
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const blogRoutes = require("./routes/blogRoutes");
@@ -47,7 +43,9 @@ if (process.env.NODE_ENV === "production") {
     next();
   });
 }
-
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/blogs", blogRoutes);
